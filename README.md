@@ -1,50 +1,46 @@
-openstack-ansible pike
-Hardware Requirements
+# OpenStack Kolla Lab Bootstrap
 
-1 Infrastructure Node
-3 Compute Node
-1 Storage Node
+This repository previously contained an **unofficial, outdated OpenStack-Ansible + Vagrant lab** based on Havana-era assumptions. That workflow is now **deprecated** and has been removed from the active path.
 
+This repository is now a clean bootstrap kit for building a **modern OpenStack lab using Kolla-Ansible**.
 
-Howto
-1.Config Interface Network
+## Scope and intent
 
-2.Prepare the deployment host all
-# apt-get update
-# apt-get dist-upgrade
+- Intended for **lab/dev/bootstrap** environments.
+- Not a full production platform or opinionated operations framework.
+- Uses script wrappers and simple Ansible checks to keep usage predictable.
 
-# apt-get install aptitude build-essential git ntp ntpdate \
-openssh-server python-dev sudo
+## What changed
 
-# apt-get install bridge-utils debootstrap ifenslave ifenslave-2.6 \
-lsof lvm2 ntp ntpdate openssh-server sudo tcpdump vlan
+- Old Vagrant/Havana deployment workflow removed from active usage.
+- New structure centered on:
+  - Kolla-Ansible inventories
+  - Kolla globals/password examples
+  - Host preparation and validation playbooks
+  - Scripted lifecycle commands (`scripts/*.sh`)
 
-# echo 'bonding' >> /etc/modules
-# echo '8021q' >> /etc/modules
+## Quick start
 
-3.Configure SSH keys
-All Node sudo no password
-# sudo -i
-# visudo
-# search %sudo
-devops ALL:(ALL) NOPASSWD: ALL
-Permit Root Login 
-# vi /etc/ssh/sshd_config
-PermitRootLogin yes
+1. Read prerequisites: `docs/prerequisites.md`
+2. Install local prerequisites: `./scripts/install-prereqs.sh`
+3. Prepare inventory (`inventory/all-in-one` or `inventory/multinode`)
+4. Copy config examples:
+   - `cp globals.yml.example globals.yml`
+   - `cp passwords.yml.example passwords.yml`
+5. Prepare hosts: `./scripts/bootstrap-hosts.sh`
+6. Deploy OpenStack: `./scripts/deploy.sh`
+7. Post-deploy setup: `./scripts/post-deploy.sh`
 
-# systemctl restart sshd
-# ssh-keygen
-# ssh-copy-id root@xxx.xxx.xxx.xxx
+For full procedure, see `docs/deployment.md`.
 
-4.Install the source and dependencies
-# cd /opt
-# git clone git@bitbucket.org:dotography-code/openstack-ansible.git -b stable/pike
-# cd openstack-ansible/scripts/
-# ./bootstrap-ansible.sh 
+## Repository layout
 
+- `docs/`: architecture and operator workflow docs
+- `inventory/`: example all-in-one and multinode inventories
+- `ansible/`: prep and validation playbooks
+- `scripts/`: command wrappers for Kolla-Ansible tasks
+- `legacy/`: deprecated references only
 
-5.Playbooks to install OpenStack
-# vi /etc/openstack_deploy/openstack_user_config.yml
-# openstack-ansible setup-hosts.yml --limit 'all:!log1' 
-# openstack-ansible setup-infrastructure.yml 
-# openstack-ansible setup-openstack.yml
+## Deprecated content
+
+Historical workflow context is retained only as a short deprecation note under `legacy/`.

@@ -1,0 +1,52 @@
+---
+- name: Validate target hosts for Kolla lab deployment
+  hosts: all:!deployment
+  gather_facts: true
+  vars:
+    min_root_free_gb: 20
+    external_interface: "{{ hostvars[inventory_hostname].external_interface | default('eth1') }}"
+    blocked_ports: [80, 443, 3306, 5672, 9292]
+  tasks:
+    - name: Assert supported OS family
+      assert:
+        that:
+          - ansible_facts.os_family in ['Debian', 'RedHat']
+        fail_msg: "Unsupported OS family for this lab baseline."
+
+    - name: Check Python availability
+      assert:
+        that:
+          - ansible_facts.python.version.major | int >= 3
+        fail_msg: "Python 3 is required on target host."
+
+    - name: Check root filesystem free space
+      assert:
+        that:
+          - (ansible_facts.mounts | selectattr('mount', 'equalto', '/') | map(attribute='size_available') | first / 1024 / 1024 / 1024) >= min_root_free_gb
+        fail_msg: "Insufficient free space on /."
+
+    - name: Ensure management interface exists
+      assert:
+        that:
+          - ansible_facts.interfaces | select('equalto', ansible_default_ipv4.interface) | list | length > 0
+
+    - name: Ensure external interface exists
+      assert:
+        that:
+          - ansible_facts.interfaces | select('equalto', external_interface) | list | length > 0
+        fail_msg: "Configured external interface does not exist."
+
+    - name: Check blocked ports are free
+      shell: "ss -lntH '( sport = :{{ item }} )' | wc -l"
+      args:
+        warn: false
+      changed_when: false
+      register: port_check
+      loop: "{{ blocked_ports }}"
+
+    - name: Assert blocked ports are unused
+      assert:
+        that:
+          - item.stdout | int == 0
+        fail_msg: "Required port {{ item.item }} is already in use."
+      loop: "{{ port_check.results }}"

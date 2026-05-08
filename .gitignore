@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Ansible
+*.retry
+
+# Local configuration and secrets
+globals.yml
+passwords.yml
+*.pem
+id_rsa*
+
+# Editor/OS
+.DS_Store
+.vscode/
+.idea/
