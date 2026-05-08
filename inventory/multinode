@@ -1,0 +1,23 @@
+[all]
+control-01 ansible_host=192.0.2.11 ansible_user=lab
+network-01 ansible_host=192.0.2.21 ansible_user=lab
+compute-01 ansible_host=192.0.2.31 ansible_user=lab
+storage-01 ansible_host=192.0.2.41 ansible_user=lab
+
+[control]
+control-01
+
+[network]
+network-01
+
+[compute]
+compute-01
+
+[storage]
+storage-01
+
+[monitoring]
+control-01
+
+[deployment]
+localhost ansible_connection=local

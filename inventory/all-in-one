@@ -1,0 +1,20 @@
+[all]
+aio-node ansible_host=192.0.2.10 ansible_user=lab
+
+[control]
+aio-node
+
+[network]
+aio-node
+
+[compute]
+aio-node
+
+[storage]
+aio-node
+
+[monitoring]
+aio-node
+
+[deployment]
+localhost ansible_connection=local
